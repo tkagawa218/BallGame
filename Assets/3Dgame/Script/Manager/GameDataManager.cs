@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
@@ -36,19 +34,7 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
     private int _minZ = 0;
     private int _maxZ = 0;
 
-    //タイマーイベントを発行する核となるインスタンス
-    private Subject<int> timerSubject = new Subject<int>();
-
-    //ゲームスタートイベントを発行する核となるインスタンス
-    private Subject<Unit> startSubject = new Subject<Unit>();
-    //ゲーム終了イベントを発行する核となるインスタンス (true:勝利 false:敗北)
-    private Subject<bool> endSubject = new Subject<bool>();
-
-    //敵数変化イベントを発行する核となるインスタンス
-    private Subject<int> varEnemySubject = new Subject<int>();
-
-    //パーティクル配置イベントを発行する核となるインスタンス
-    private Subject<Unit> setParticleSubject = new Subject<Unit>();
+   
 
     public bool getGameOn() { return _gameOn; }
 
@@ -68,7 +54,7 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
         _maxX = gamedata.maxX;
         _minZ = gamedata.minZ;
         _maxZ = gamedata.maxZ;
-        sendStartEvent();
+        UniRxManager.Instance.SendStartEvent();
     }
 
     /// <summary>
@@ -76,7 +62,7 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
     /// </summary>
     public void setGameOff(bool result) {
         _gameOn = false;
-        sendEndEvent(result);
+        UniRxManager.Instance.SendEndEvent(result);
     }
 
     public Vector3 getInitPlayerPos() { return initPlayerPos; }
@@ -121,7 +107,7 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
 
             _enemyS.Add(obj);
         }
-        sendVarEnemyEvent(_enemyS.Count);
+        UniRxManager.Instance.SendVarEnemyEvent(_enemyS.Count);
         if(num > 0) GameSoundManager.Instance.sendEnemyparticleSeEvent();
     }
 
@@ -157,7 +143,7 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
             Destroy(_enemyS[i]);
             _enemyS.Remove(_enemyS[i]);
         }
-        sendVarEnemyEvent(_enemyS.Count);
+        UniRxManager.Instance.SendVarEnemyEvent(_enemyS.Count);
     }
 
     /// <summary>
@@ -171,7 +157,7 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
         }
 
         _enemyS.Clear();
-        sendVarEnemyEvent(_enemyS.Count);
+        UniRxManager.Instance.SendVarEnemyEvent(_enemyS.Count);
     }
 
     /// <summary>
@@ -298,91 +284,8 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
     public void setRestTime(int time)
     {
         restTime = time;
-        sendTimeChanged(restTime);
-    }
-
-    /// <summary>
-    /// タイマーイベントの購読側だけを公開
-    /// </summary>
-    public IObservable<int> OnTimeChanged
-    {
-        get { return timerSubject; }
-    }
-
-    /// <summary>
-    /// ゲームスタートイベントの購読側だけを公開
-    /// </summary>
-    public IObservable<Unit> OnStartEvent
-    {
-        get { return startSubject; }
-    }
-
-    /// <summary>
-    /// ゲーム終了イベントの購読側だけを公開
-    ///true:勝利
-    ///false:敗北
-    /// </summary>
-    public IObservable<bool> OnEndEvent
-    {
-        get { return endSubject; }
-    }
-
-    /// <summary>
-    /// 敵増加イベントの購読側だけを公開
-    /// </summary>
-    public IObservable<int> OnVarEnemyEvent
-    {
-        get { return varEnemySubject; }
-    }
-
-    /// <summary>
-    /// パーティクル配置イベントの購読側だけを公開
-    /// </summary>
-    public IObservable<Unit> OnSetParticleEvent
-    {
-        get { return setParticleSubject; }
+        UniRxManager.Instance.SendTimeChanged(restTime);
     }
 
     public List<GameObject> EnemyS { get => _enemyS; set => _enemyS = value; }
-
-    /// <summary>
-    /// タイマーイベント発行
-    /// </summary>
-    /// <param name="time">設定する秒</param>
-    public void sendTimeChanged(int time)
-    {
-        timerSubject.OnNext(time);
-    }
-
-    /// <summary>
-    /// ゲームスタートイベント発行
-    /// </summary>
-    public void sendStartEvent()
-    {
-        startSubject.OnNext(Unit.Default);
-    }
-
-    /// <summary>
-    /// ゲーム終了イベント発行
-    /// </summary>
-    /// <param name="result">true:勝利 false:敗北</param>
-    public void sendEndEvent(bool result)
-    {
-        endSubject.OnNext(result);
-    }
-
-    /// <summary>
-    /// 敵キャラ増加イベント発行
-    /// </summary>
-    /// <param name="num">敵キャラの数</param>
-    public void sendVarEnemyEvent(int num)
-    {
-        varEnemySubject.OnNext(num);
-    }
-
-    //パーティクル配置イベント発行
-    public void sendSetParticleEvent()
-    {
-        setParticleSubject.OnNext(Unit.Default);
-    }
 }

@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UniRx.Async;
 using UniRx.Async.Triggers;
 using UniRx;
 using System;
 
-public class PlayerController : MonoBehaviour
+public class PlayerManager : MonoBehaviour
 {
     [SerializeField]
     private float _speed = 1.0f; // 移動速度 m/s
@@ -32,12 +31,12 @@ public class PlayerController : MonoBehaviour
         GameData gamedata = Resources.Load<GameData>(GameDataManager.Instance.GetScritablePath());
 
         //ゲームスタートイベントを購読
-        GameDataManager.Instance.OnStartEvent
+        UniRxManager.Instance.OnStartEvent
         .Subscribe(_ =>
         {
             GameDataManager.Instance.allDellEnemyS();
             GameDataManager.Instance.setRestTime(GameData.Instance.gameTime);
-            GameDataManager.Instance.sendSetParticleEvent();
+            UniRxManager.Instance.SendSetParticleEvent();
             _start.SetActive(false);
             _help.SetActive(false);
             _gameOver.SetActive(false);
@@ -54,7 +53,7 @@ public class PlayerController : MonoBehaviour
         //result
         //true:勝利
         //false:敗北
-        GameDataManager.Instance.OnEndEvent
+        UniRxManager.Instance.OnEndEvent
         .Subscribe(result =>
         {
             transform.position = GameDataManager.Instance.getInitPlayerPos();
