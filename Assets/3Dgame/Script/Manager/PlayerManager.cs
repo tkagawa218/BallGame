@@ -3,24 +3,17 @@ using UniRx.Async;
 using UniRx.Async.Triggers;
 using UniRx;
 using System;
+using Model;
+using UnityEditor;
 
 public class PlayerManager : MonoBehaviour
 {
     [SerializeField]
+    private PlayerController _playerController;
+
+    [SerializeField]
     private float _speed = 1.0f; // 移動速度 m/s
                                  // Update is called once per frame
-    [SerializeField]
-    private GameObject _gameOver; //GameOver時表示オブジェクト
-
-    [SerializeField]
-    private GameObject _gameWin; //Game勝利時表示オブジェクト
-
-    [SerializeField]
-    private GameObject _start; //スタートボタン用オブジェクト
-
-    [SerializeField]
-    private GameObject _help; //ヘルプ用オブジェクト
-
     [SerializeField]
     private GameObject _enemySP; //敵キャラオブジェクト格納親オブジェクト
 
@@ -28,53 +21,17 @@ public class PlayerManager : MonoBehaviour
 
     private void Awake()
     {
-        GameData gamedata = Resources.Load<GameData>(GameDataManager.Instance.GetScritablePath());
+        var gamedata = GameDataModel.GetGameData();
 
-        //ゲームスタートイベントを購読
-        UniRxManager.Instance.OnStartEvent
-        .Subscribe(_ =>
-        {
-            GameDataManager.Instance.allDellEnemyS();
-            GameDataManager.Instance.setRestTime(GameData.Instance.gameTime);
-            UniRxManager.Instance.SendSetParticleEvent();
-            _start.SetActive(false);
-            _help.SetActive(false);
-            _gameOver.SetActive(false);
-            _gameWin.SetActive(false);
-            GameDataManager.Instance.addEnemyS(_enemySP, gameObject);
-            GameSoundManager.Instance.sendSoundPlayBgmEvent();
-
-            Observable.Interval(TimeSpan.FromSeconds(gamedata.enemyExplaceInterval))
-                           .Do(x => GameDataManager.Instance.allExplaceEnemyS())
-                           .Subscribe();
-        });
-
-        //ゲーム終了イベントを購読
-        //result
-        //true:勝利
-        //false:敗北
         UniRxManager.Instance.OnEndEvent
         .Subscribe(result =>
         {
-            transform.position = GameDataManager.Instance.getInitPlayerPos();
-            if(result)
-            {
-                _gameWin.SetActive(true);
-                GameSoundManager.Instance.sendSoundWinBgmEvent();
-                _help.SetActive(true);
-            }
-            else
-            {
-                _gameOver.SetActive(true);
-                GameSoundManager.Instance.sendSoundLoseBgmEvent();
-                _help.SetActive(true);
-            }
+            _playerController.InitPlayerPos();
         });
     }
 
     private void Start()
     {
-        GameDataManager.Instance.setInitPlayerPos(transform.position);
 
         //AsyncTrigger（extends MonoBehaviour）を取得する
         asyncCollisionTrigger = this.GetAsyncCollisionTrigger();
@@ -134,7 +91,7 @@ public class PlayerManager : MonoBehaviour
         if(target.gameObject.name == "Terrain")
         {
             //味方キャラが地面に落ちたら、startボタンを表示
-            if(!GameDataManager.Instance.getGameOn()) _start.SetActive(true);
+            if(!GameDataManager.Instance.getGameOn()) UniRxManager.Instance.SendStartButtonEvent(true);
         }
         else
         {
@@ -193,14 +150,5 @@ public class PlayerManager : MonoBehaviour
         //await asyncCollisionTrigger.OnCollisionExitAsync();
 
         //Debug.Log("Bye!");
-    }
-
-    /// <summary>
-    /// startボタン押下時呼ばれるメソッド
-    /// </summary>
-    public void startBtn_Click()
-    {
-        GameDataManager.Instance.setGameOn();
-        GameSoundManager.Instance.sendStartBtnSeEvent();
     }
 }

@@ -1,70 +1,59 @@
-﻿using System.Collections;
+﻿using Manager;
+using Model;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx.Async;
 using UniRx.Async.Triggers;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+
+namespace Controller
 {
-    public GameObject TargetObject; /// 目標位置
-    
-    private UnityEngine.AI.NavMeshAgent _navMeshAgent; /// NavMeshAgent
-    private AsyncCollisionTrigger _asyncCollisionTrigger;
 
-    // Use this for initialization
-    void Start()
+    public class EnemyController : MonoBehaviour
     {
-        // NavMeshAgentコンポーネントを取得
-        _navMeshAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        private AsyncCollisionTrigger _asyncCollisionTrigger;
 
-        //AsyncTrigger（extends MonoBehaviour）を取得する
-        _asyncCollisionTrigger = this.GetAsyncCollisionTrigger();
-
-        DoAsync().Forget();
-    }
-    
-    // Update is called once per frame
-    void Update()
-    {
-        // NavMeshが準備できているなら
-        if (_navMeshAgent.pathStatus != UnityEngine.AI.NavMeshPathStatus.PathInvalid)
+        private void Awake()
         {
-            // NavMeshAgentに目的地をセット
-            _navMeshAgent.SetDestination(TargetObject.transform.position);
+            //AsyncTrigger（extends MonoBehaviour）を取得する
+            _asyncCollisionTrigger = this.GetAsyncCollisionTrigger();
         }
-    }
 
-    async UniTask DoAsync()
-    {
-        // OnCollisionEnterが発生するまで待機する
-        var target = await _asyncCollisionTrigger.OnCollisionEnterAsync();
-        
-        int n = GameDataManager.Instance.getEnemyParticleS().Count;
-        bool flag = false;
-        GameObject item = null;
-        for (int i = 0; i < n; i++)
+        public async UniTask DoAsync()
         {
-            if (target.gameObject.name == GameDataManager.Instance.getEnemyParticleS()[i].name)
+            // OnCollisionEnterが発生するまで待機する
+            // 敵球が、茶色のパーティクルに触れると、敵が増えます。
+            var target = await _asyncCollisionTrigger.OnCollisionEnterAsync();
+
+            var enemyParticleS = GameDataModel.GetEnemyParticleS();
+            bool flag = false;
+            GameObject item = null;
+            foreach (var enemyParticle in enemyParticleS)
             {
-                flag = true;
-                item = GameDataManager.Instance.getEnemyParticleS()[i];
-                break;
+                if (target.gameObject == enemyParticle)
+                {
+                    flag = true;
+                    item = enemyParticle;
+                    break;
+                }
             }
 
+            if (flag)
+            {
+                UniRxManager.Instance.SendDelEnemyParticleEvent(item);
+                UniRxManager.Instance.SendVarEnemyEvent(GameDataModel.GetEnemyS().Count + 1);
+                UniRxManager.Instance.SendAddEnemyEvent();
+            }
+
+            DoAsync().Forget();
+
+
+            // OnCollisionExitが発生するまで待つ
+            //await asyncCollisionTrigger.OnCollisionExitAsync();
+
+            //Debug.Log("Bye!");
         }
 
-        if (flag)
-        {
-            GameDataManager.Instance.DellAnyEnemyParticleS(item);
-            GameDataManager.Instance.addEnemyS(gameObject.transform.parent.gameObject, TargetObject);
-        }
-
-        DoAsync().Forget();
-
-
-        // OnCollisionExitが発生するまで待つ
-        //await asyncCollisionTrigger.OnCollisionExitAsync();
-
-        //Debug.Log("Bye!");
     }
 }

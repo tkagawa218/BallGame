@@ -10,7 +10,7 @@ public class EnemyInfoController : MonoBehaviour
     void Awake()
     {
         //敵数変化イベント
-        GameDataManager.Instance.OnVarEnemyEvent
+        UniRxManager.Instance.OnVarEnemyEvent
             .Subscribe(n =>
             {
                 TextMeshProUGUI t = enemyNum.GetComponent<TextMeshProUGUI>();

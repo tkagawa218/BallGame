@@ -104,4 +104,91 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
     {
         setParticleSubject.OnNext(Unit.Default);
     }
+
+    //敵パーティクル削除イベントを発行する核となるインスタンス
+    private Subject<GameObject> _delEnemyParticleSubject = new Subject<GameObject>();
+
+    /// <summary>
+    /// 敵パーティクル削除イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<GameObject> OnDelEnemyParticleEvent
+    {
+        get { return _delEnemyParticleSubject; }
+    }
+
+
+    //敵パーティクル削除イベント発行
+    public void SendDelEnemyParticleEvent(GameObject item)
+    {
+        _delEnemyParticleSubject.OnNext(item);
+    }
+
+    //味方パーティクル削除イベントを発行する核となるインスタンス
+    private Subject<GameObject> _delPlayerParticleSubject = new Subject<GameObject>();
+
+    /// <summary>
+    /// 味方パーティクル削除イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<GameObject> OnDelPlayerParticleEvent
+    {
+        get { return _delPlayerParticleSubject; }
+    }
+
+
+    //味方パーティクル削除イベント発行
+    public void SendDelPlayerParticleEvent(GameObject item)
+    {
+        _delPlayerParticleSubject.OnNext(item);
+    }
+
+    //敵追加イベントを発行する核となるインスタンス
+    private Subject<Unit> addEnemySubject = new Subject<Unit>();
+
+    /// <summary>
+    /// 敵追加イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<Unit> OnAddEnemyEvent
+    {
+        get { return addEnemySubject; }
+    }
+
+    // 敵追加イベント発行
+    public void SendAddEnemyEvent()
+    {
+        addEnemySubject.OnNext(Unit.Default);
+    }
+
+    // Time設定イベントを発行する核となるインスタンス
+    private Subject<int> setTimeSubject = new Subject<int>();
+
+    /// <summary>
+    /// Time設定イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<int> OnSetTimeEvent
+    {
+        get { return setTimeSubject; }
+    }
+
+    // Time設定イベント発行
+    public void SendSetTimeEvent(int time)
+    {
+        setTimeSubject.OnNext(time);
+    }
+
+    // startボタン表示非表示イベントを発行する核となるインスタンス
+    private Subject<bool> _startButtonSubject = new Subject<bool>();
+
+    /// <summary>
+    /// startボタン表示非表示イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<bool> OnStartButtonEvent
+    {
+        get { return _startButtonSubject; }
+    }
+
+    // Time設定イベント発行
+    public void SendStartButtonEvent(bool b)
+    {
+        _startButtonSubject.OnNext(b);
+    }
 }

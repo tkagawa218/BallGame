@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Common;
+using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
@@ -44,20 +45,6 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
     public int getMaxZ() { return _maxZ; }
 
     /// <summary>
-    /// ゲームの最中のフラグをたてる
-    /// </summary>
-    public void setGameOn()
-    {
-        _gameOn = true;
-        GameData gamedata = Resources.Load<GameData>(scritablePath);
-        _minX = gamedata.minX;
-        _maxX = gamedata.maxX;
-        _minZ = gamedata.minZ;
-        _maxZ = gamedata.maxZ;
-        UniRxManager.Instance.SendStartEvent();
-    }
-
-    /// <summary>
     /// ゲームの最中のフラグをおとす
     /// </summary>
     public void setGameOff(bool result) {
@@ -65,50 +52,11 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
         UniRxManager.Instance.SendEndEvent(result);
     }
 
-    public Vector3 getInitPlayerPos() { return initPlayerPos; }
     public void setInitPlayerPos(Vector3 p) { initPlayerPos = p; }
 
     public List<GameObject> getEnemyS()
     {
         return _enemyS;
-    }
-
-    /// <summary>
-    /// 敵キャラの追加
-    /// </summary>
-    /// <param name="p">敵キャラを格納する親オブジェクト</param>
-    /// <param name="target">敵からが追いかけるオブジェクト(味方キャラ)</param>
-    public void addEnemyS(GameObject p, GameObject target)
-    {
-        GameData gamedata = Resources.Load<GameData>(scritablePath);
-
-        int num = 0;
-        if (_enemyS.Count + gamedata.enemyInitNum > gamedata.enemyNumMax)
-        {
-            num = gamedata.enemyNumMax - _enemyS.Count;
-        }
-        else
-        {
-            num = gamedata.enemyInitNum;
-        }
-
-        Vector3[] ememyPosS = Common.Shuffle<Vector3>(gamedata.enemyPos);
-
-        for (int i = 0; i < num; i++)
-        {
-            // EnemyプレハブをGameObject型で取得
-            GameObject prefabObj = (GameObject)Resources.Load(enemyPrefabPath);
-            // Cubeプレハブを元に、インスタンスを生成、
-            GameObject obj = Instantiate(prefabObj, ememyPosS[i], Quaternion.identity);
-            EnemyController e = obj.GetComponent<EnemyController>();
-            e.TargetObject = target;
-
-            obj.transform.parent = p.transform;
-
-            _enemyS.Add(obj);
-        }
-        UniRxManager.Instance.SendVarEnemyEvent(_enemyS.Count);
-        if(num > 0) GameSoundManager.Instance.sendEnemyparticleSeEvent();
     }
 
     /// <summary>
@@ -165,11 +113,9 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
     /// </summary>
     public void allExplaceEnemyS()
     {
-        GameData gamedata = Resources.Load<GameData>(scritablePath);
-
         foreach (GameObject e in _enemyS)
         {
-            Vector3 ememyPosS = gamedata.enemyPos[UnityEngine.Random.Range(0, gamedata.enemyPos.Length)];
+            Vector3 ememyPosS = GameData.Instance.enemyPos[UnityEngine.Random.Range(0, GameData.Instance.enemyPos.Length)];
 
             e.transform.position = ememyPosS;
         }
@@ -199,7 +145,7 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
         int enemyParticleNum = gamedata.enemyAreaNum;
         int playerParticleNum = gamedata.playerAreaNum;
 
-        Vector3[] particlePosS = Common.Shuffle<Vector3>(gamedata.areaPos);
+        Vector3[] particlePosS = CommonTool.Shuffle<Vector3>(gamedata.areaPos);
         Quaternion rote = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
 
         for (int i = 0; i < enemyParticleNum; i++)
@@ -272,20 +218,4 @@ public class GameDataManager : SingletonMonoBehaviour<GameDataManager>
         _playerParticleS.Remove(item);
     }
 
-    public string GetScritablePath()
-    {
-        return scritablePath;
-    }
-
-    /// <summary>
-    /// 残りタイムの設定
-    /// </summary>
-    /// <param name="time">残りタイム(秒)</param>
-    public void setRestTime(int time)
-    {
-        restTime = time;
-        UniRxManager.Instance.SendTimeChanged(restTime);
-    }
-
-    public List<GameObject> EnemyS { get => _enemyS; set => _enemyS = value; }
-}
+  }
