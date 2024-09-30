@@ -1,12 +1,9 @@
-using UniRx.Async.Triggers;
 using UniRx.Async;
 using UnityEngine;
 using UnityEngine.AI;
-using Model;
 using UniRx;
-using System;
 using Controller;
-using static UnityEditor.Experimental.GraphView.GraphView;
+using Common;
 
 namespace Manager
 {
@@ -40,6 +37,17 @@ namespace Manager
             {
                 _enemyController.DoAsync().Forget();
             })
+            .AddTo(this);
+
+            Observable.EveryUpdate()
+           .Subscribe(_ => {
+               // NavMeshが準備できているなら
+               if (_navMeshAgent.pathStatus != UnityEngine.AI.NavMeshPathStatus.PathInvalid)
+               {
+                   // NavMeshAgentに目的地をセット
+                   _navMeshAgent.SetDestination(TargetObject.transform.position);
+               }
+           })
             .AddTo(this);
         }
     }

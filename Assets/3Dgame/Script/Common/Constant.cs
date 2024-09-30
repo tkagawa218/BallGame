@@ -7,9 +7,9 @@ namespace Common
 
     public class Constant
     {
-        // ’ƒF‚Ì“G—pƒp[ƒeƒBƒNƒ‹
+        // èŒ¶è‰²ã®æ•µç”¨ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«
         public const string EnemyParticleNamePre = "EnemyParticle";
-        // ’ƒF‚Ì“G—pƒp[ƒeƒBƒNƒ‹
+        // èŒ¶è‰²ã®æ•µç”¨ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«
         public const string PlayerParticleNamePre = "PlayerParticle";
     }
 }

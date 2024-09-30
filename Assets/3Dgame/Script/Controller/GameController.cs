@@ -13,11 +13,18 @@ namespace Controller
         [SerializeField]
         private GameView _gameView;
 
+        [SerializeField]
+        private GameData _gameData;
+
         //敵キャラ数を増やすトリガーとなるパーティクルList(敵キャラが触れるのがトリガーとなる)
         private List<GameObject> _enemyParticleS = new List<GameObject>();
 
         //敵キャラ数を減らすトリガーとなるパーティクルList(味方キャラが触れるのがトリガーとなる)
         private List<GameObject> _playerParticleS = new List<GameObject>();
+        public void Init()
+        {
+            GameDataModel.Init(_gameData);
+        }
 
 
         public void GameOn()
@@ -25,24 +32,52 @@ namespace Controller
             GameDataModel.SetGameOn();
         }
 
+        public bool GetGameOn()
+        {
+            return GameDataModel.GetGameOn();
+        }
+
         public void ActionByTimeChanged(int t)
         {
             if (GameDataModel.GetGameOn())
             {
-                UniRxManager.Instance.SendSetTimeEvent(t);
+                GameDataModel.RestTime = t - 1;
                 if (t == 0)
                 {
                     GameDataModel.SetGameOff();
                     UniRxManager.Instance.SendEndEvent(true);
                 }
-                else
-                {
-                    GameDataModel.RestTime = t - 1;
-                }
+                UniRxManager.Instance.SendSetTimeEvent(GameDataModel.RestTime);
             }
 
         }
 
+        public void AdjustmentEnemyS(GameObject p, GameObject target, int num)
+        {
+            int diff = num - GameDataModel.GetEnemyS().Count;
+
+            if (diff == 0)
+            {
+                return;
+            }
+
+            if(diff > 0)
+            {
+                while (diff > 0)
+                {
+                    AddEnemyS(p, target);
+                    diff--;
+                }
+
+                return;
+            }
+
+            while (diff < 0)
+            {
+                DelEnemyS();
+                diff++;
+            }
+        }
 
         /// <summary>
         /// 敵キャラの追加

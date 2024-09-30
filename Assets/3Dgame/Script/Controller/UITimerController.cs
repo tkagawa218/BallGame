@@ -8,10 +8,10 @@ using View;
 namespace Controller
 {
 
-    public class TimerController : MonoBehaviour
+    public class UITimerController : MonoBehaviour
     {
         [SerializeField]
-        private TimerView _timerView;
+        private UITimerView _uiTimerView;
 
         private string timeFormat(int time)
         {
@@ -28,7 +28,7 @@ namespace Controller
 
         public void SetTime(int time)
         {
-            _timerView.SetText(timeFormat(time));
+            _uiTimerView.SetText(timeFormat(time));
         }
     }
 }

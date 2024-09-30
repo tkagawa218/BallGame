@@ -1,7 +1,7 @@
 using Manager;
 using System.Collections.Generic;
-using UnityEditor.PackageManager.UI;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace Model
 {
@@ -33,6 +33,12 @@ namespace Model
         private static int _minZ = 0;
         private static int _maxZ = 0;
 
+        public static void Init(GameData gameData)
+        {
+            _gameData = gameData;
+        }
+
+
         public static bool GetGameOn() { return _gameOn; }
 
         /// <summary>
@@ -41,10 +47,10 @@ namespace Model
         public static void SetGameOn()
         {
             _gameOn = true;
-            _minX = _gameData.minX;
-            _maxX = _gameData.maxX;
-            _minZ = _gameData.minZ;
-            _maxZ = _gameData.maxZ;
+            _minX = GameData.Instance.minX;
+            _maxX = GameData.Instance.maxX;
+            _minZ = GameData.Instance.minZ;
+            _maxZ = GameData.Instance.maxZ;
         }
 
         public static int GetMinX() { return _minX; }

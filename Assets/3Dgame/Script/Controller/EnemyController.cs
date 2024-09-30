@@ -43,17 +43,9 @@ namespace Controller
             {
                 UniRxManager.Instance.SendDelEnemyParticleEvent(item);
                 UniRxManager.Instance.SendVarEnemyEvent(GameDataModel.GetEnemyS().Count + 1);
-                UniRxManager.Instance.SendAddEnemyEvent();
             }
 
             DoAsync().Forget();
-
-
-            // OnCollisionExitが発生するまで待つ
-            //await asyncCollisionTrigger.OnCollisionExitAsync();
-
-            //Debug.Log("Bye!");
         }
-
     }
 }

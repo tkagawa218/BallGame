@@ -1,11 +1,8 @@
 using UnityEngine;
 using UniRx;
 using Controller;
-using System.Collections.Generic;
 using System;
 using Model;
-using static UnityEngine.Networking.UnityWebRequest;
-using UnityEditor;
 
 namespace Manager
 {
@@ -23,6 +20,8 @@ namespace Manager
 
         private void Awake()
         {
+            _gameController.Init();
+
             _gameController.SetPlayerPos(_player.transform.position);
 
             UniRxManager.Instance.OnStartEvent
@@ -41,10 +40,10 @@ namespace Manager
             })
             .AddTo(this);
 
-            UniRxManager.Instance.OnAddEnemyEvent
-            .Subscribe(_ =>
+            UniRxManager.Instance.OnVarEnemyEvent
+            .Subscribe(num =>
             {
-                _gameController.AddEnemyS(_enemyParent.gameObject, _player.gameObject);
+                _gameController.AdjustmentEnemyS(_enemyParent.gameObject, _player.gameObject, num);
             })
             .AddTo(this);
 
@@ -54,7 +53,8 @@ namespace Manager
             .Subscribe(t =>
             {
                 _gameController.ActionByTimeChanged(t);
-            });
+            })
+            .AddTo(this);
 
             //ƒQ[ƒ€I—¹ƒCƒxƒ“ƒg‚ğw“Ç
             //result
@@ -72,19 +72,34 @@ namespace Manager
                 {
                     GameSoundManager.Instance.sendSoundLoseBgmEvent();
                 }
-            });
+            })
+            .AddTo(this);
 
             UniRxManager.Instance.OnDelEnemyParticleEvent
             .Subscribe(item =>
             {
                 _gameController.DellAnyEnemyParticleS(item);
-            });
+            })
+            .AddTo(this);
 
             UniRxManager.Instance.OnDelPlayerParticleEvent
             .Subscribe(item =>
             {
                 _gameController.DellAnyPlayerParticleS(item);
-            });
+            })
+            .AddTo(this);
+
+            Observable
+            .Timer(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(1)) //0•bŒã‚©‚ç1•bŠÔŠu‚ÅÀs
+            .Subscribe(x => //x‚Í‹N“®‚µ‚Ä‚©‚ç‚Ì•b”
+            {
+                if (!_gameController.GetGameOn())
+                {
+                    return;
+                }
+                _gameController.setRestTime(GameDataModel.RestTime - (int)x);
+            })
+            .AddTo(this);
         }
 
         private void OnDestroy()

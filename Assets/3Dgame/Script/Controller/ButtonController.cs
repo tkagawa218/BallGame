@@ -1,12 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using UnityEngine.UI;
 
 public class ButtonController : MonoBehaviour
 {
     [SerializeField]
     private ButtonView _buttonView;
+
+    public Button StartButton => _buttonView.StartButton;
 
     private void Awake()
     {

@@ -13,14 +13,14 @@ namespace Manager
         private ButtonController _buttonController;
 
         [SerializeField]
-        private TimerController _timerController;
+        private UITimerController _uiTimerController;
 
         private void Awake()
         {
             UniRxManager.Instance.OnSetTimeEvent
             .Subscribe(t =>
             {
-                _timerController.SetTime(t);
+                _uiTimerController.SetTime(t);
             })
             .AddTo(this);
 
@@ -28,6 +28,13 @@ namespace Manager
             .Subscribe(b =>
             {
                 _buttonController.SetStartActive(b);
+            })
+            .AddTo(this);
+
+            _buttonController.StartButton.OnClickAsObservable()
+            .Subscribe(c =>
+            {
+                UniRxManager.Instance.SendStartEvent();
             })
             .AddTo(this);
         }

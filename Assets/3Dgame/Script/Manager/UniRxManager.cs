@@ -1,3 +1,4 @@
+using Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -71,7 +72,7 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
     private Subject<int> varEnemySubject = new Subject<int>();
 
     /// <summary>
-    /// 敵増加イベントの購読側だけを公開
+    /// 敵数変化イベントの購読側だけを公開
     /// </summary>
     public IObservable<int> OnVarEnemyEvent
     {
@@ -79,7 +80,7 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
     }
 
     /// <summary>
-    /// 敵キャラ増加イベント発行
+    /// 敵数変化イベント発行
     /// </summary>
     /// <param name="num">敵キャラの数</param>
     public void SendVarEnemyEvent(int num)
@@ -141,23 +142,6 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
         _delPlayerParticleSubject.OnNext(item);
     }
 
-    //敵追加イベントを発行する核となるインスタンス
-    private Subject<Unit> addEnemySubject = new Subject<Unit>();
-
-    /// <summary>
-    /// 敵追加イベントの購読側だけを公開
-    /// </summary>
-    public IObservable<Unit> OnAddEnemyEvent
-    {
-        get { return addEnemySubject; }
-    }
-
-    // 敵追加イベント発行
-    public void SendAddEnemyEvent()
-    {
-        addEnemySubject.OnNext(Unit.Default);
-    }
-
     // Time設定イベントを発行する核となるインスタンス
     private Subject<int> setTimeSubject = new Subject<int>();
 
@@ -186,9 +170,26 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
         get { return _startButtonSubject; }
     }
 
-    // Time設定イベント発行
+    // startボタン表示非表示イベント発行
     public void SendStartButtonEvent(bool b)
     {
         _startButtonSubject.OnNext(b);
+    }
+
+    //player方向指示イベントを発行する核となるインスタンス
+    private Subject<PlayerDirection> _playerDirectionSubject = new Subject<PlayerDirection>();
+
+    /// <summary>
+    /// player方向指示イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<PlayerDirection> OnPlayerDirectionEvent
+    {
+        get { return _playerDirectionSubject; }
+    }
+
+    // player方向指示イベント発行
+    public void SendPlayerDirectionEvent(PlayerDirection p)
+    {
+        _playerDirectionSubject.OnNext(p);
     }
 }
