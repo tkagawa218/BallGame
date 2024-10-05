@@ -45,10 +45,4 @@ public class GameData : ScriptableObject
 
     [TooltipAttribute("敵配置換えまでの時間間隔")]
     public int enemyExplaceInterval = 60;
-
-    [TooltipAttribute("プレイヤー移動範囲")]
-    public int minX = 0;
-    public int maxX = 390;
-    public int minZ = 0;
-    public int maxZ = 390;
 }

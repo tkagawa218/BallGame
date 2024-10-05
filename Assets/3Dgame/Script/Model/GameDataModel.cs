@@ -27,15 +27,9 @@ namespace Model
         //残り時間(秒)
         private static int restTime;
 
-        //プレイヤー移動範囲
-        private static int _minX = 0;
-        private static int _maxX = 0;
-        private static int _minZ = 0;
-        private static int _maxZ = 0;
-
         public static void Init(GameData gameData)
         {
-            _gameData = gameData;
+            SetGameData(gameData);
         }
 
 
@@ -47,16 +41,7 @@ namespace Model
         public static void SetGameOn()
         {
             _gameOn = true;
-            _minX = GameData.Instance.minX;
-            _maxX = GameData.Instance.maxX;
-            _minZ = GameData.Instance.minZ;
-            _maxZ = GameData.Instance.maxZ;
         }
-
-        public static int GetMinX() { return _minX; }
-        public static int GetMaxX() { return _maxX; }
-        public static int GetMinZ() { return _minZ; }
-        public static int GetMaxZ() { return _maxZ; }
 
         //残り時間(秒)
         public static int _restTime;

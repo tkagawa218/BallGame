@@ -15,6 +15,10 @@ namespace Manager
         [SerializeField]
         private UITimerController _uiTimerController;
 
+        [SerializeField]
+        private EnemyInfoController _enemyInfoController;
+        
+
         private void Awake()
         {
             UniRxManager.Instance.OnSetTimeEvent
@@ -35,6 +39,14 @@ namespace Manager
             .Subscribe(c =>
             {
                 UniRxManager.Instance.SendStartEvent();
+            })
+            .AddTo(this);
+
+
+            UniRxManager.Instance.OnVarEnemyEvent
+            .Subscribe(num =>
+            {
+                _enemyInfoController.SetEnemyNum(num);
             })
             .AddTo(this);
         }

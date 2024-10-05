@@ -2,7 +2,6 @@ using Common;
 using Model;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 namespace Controller
@@ -113,7 +112,7 @@ namespace Controller
                 GameDataModel.AddEnemyS(obj);
             }
 
-            UniRxManager.Instance.SendVarEnemyEvent(enemyNum);
+            UniRxManager.Instance.SendVarEnemyEvent(GameDataModel.GetEnemyS().Count);
             if (num > 0) GameSoundManager.Instance.sendEnemyparticleSeEvent();
         }
 
@@ -187,6 +186,18 @@ namespace Controller
         }
 
         /// <summary>
+        /// 敵キャラがぶつかると敵キャラが増えるパーティクル全て削除
+        /// </summary>
+        public void AllClearEnemyParticleS()
+        {
+            var allEnemyParticleS = GameDataModel.GetEnemyParticleS();
+            foreach (var enemyParticle in allEnemyParticleS)
+            {
+                DellAnyEnemyParticleS(enemyParticle);
+            }
+        }
+
+        /// <summary>
         /// 敵キャラがぶつかると敵キャラが増えるパーティクル削除
         /// </summary>
         /// <param name="item">削除するパーティクル</param>
@@ -195,6 +206,18 @@ namespace Controller
             Destroy(item);
 
             GameDataModel.RemoveEnemyParticle(item);
+        }
+
+        /// <summary>
+        /// 味方キャラがぶつかると敵キャラが減るパーティクル全て削除
+        /// </summary>
+        public void AllClearPlayerParticleS()
+        {
+            var allPlayerParticleS = GameDataModel.GetPlayerParticleS();
+            foreach (var playerParticle in allPlayerParticleS)
+            {
+                DellAnyEnemyParticleS(playerParticle);
+            }
         }
 
         /// <summary>

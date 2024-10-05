@@ -2274,7 +2274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6802f58842676f4ebd2364f8441b64b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyNum: {fileID: 1066474931}
+  _enemyNum: {fileID: 1066474933}
 --- !u!222 &1290458857
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2674,6 +2674,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _buttonController: {fileID: 1399895676}
   _uiTimerController: {fileID: 404526825}
+  _enemyInfoController: {fileID: 1290458856}
 --- !u!114 &1399895676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3391,6 +3392,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1984832284}
   - component: {fileID: 1984832285}
+  - component: {fileID: 1984832287}
+  - component: {fileID: 1984832286}
   m_Layer: 0
   m_Name: Particle
   m_TagString: Untagged
@@ -3425,7 +3428,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b153b2a02c3d1c0488bd58c17250afa7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _particleView: {fileID: 0}
+  _particleView: {fileID: 1984832286}
+--- !u!114 &1984832286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984832283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd1adf6aa6158a0469e48165674dc1e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemyParticlePrefab: {fileID: 5439858611134075266, guid: 90ec531119e869747a4e02c7555777ae,
+    type: 3}
+  _playerParticlePrefab: {fileID: 8230945497872261215, guid: 5a886da62d1299b4788c7117f1a465f8,
+    type: 3}
+--- !u!114 &1984832287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984832283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01c740cd22d193d46b03d61a06d2dfa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _particleController: {fileID: 1984832285}
 --- !u!1 &2000256530
 GameObject:
   m_ObjectHideFlags: 0

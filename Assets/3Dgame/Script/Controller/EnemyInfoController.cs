@@ -3,18 +3,18 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyInfoController : MonoBehaviour
+namespace Controller
 {
-    public  GameObject enemyNum;
 
-    void Awake()
+
+    public class EnemyInfoController : MonoBehaviour
     {
-        //敵数変化イベント
-        UniRxManager.Instance.OnVarEnemyEvent
-            .Subscribe(n =>
-            {
-                TextMeshProUGUI t = enemyNum.GetComponent<TextMeshProUGUI>();
-                t.SetText(n.ToString());
-            });
+        [SerializeField]
+        private TextMeshProUGUI _enemyNum;
+
+        public void SetEnemyNum(int num)
+        {
+            _enemyNum.SetText(num.ToString());
+        }
     }
 }

@@ -97,7 +97,7 @@ namespace Manager
                 {
                     return;
                 }
-                _gameController.setRestTime(GameDataModel.RestTime - (int)x);
+                _gameController.setRestTime(GameDataModel.RestTime);
             })
             .AddTo(this);
         }
@@ -105,6 +105,8 @@ namespace Manager
         private void OnDestroy()
         {
             _gameController.AllClearEnemyS();
+            _gameController.AllClearEnemyParticleS();
+            _gameController.AllClearPlayerParticleS();
         }
     }
 }
