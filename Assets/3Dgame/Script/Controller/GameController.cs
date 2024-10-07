@@ -247,19 +247,20 @@ namespace Controller
             _gameView.Help.SetActive(false);
             _gameView.GameOver.SetActive(false);
             _gameView.GameWin.SetActive(false);
+            _gameView.SetBgImageAlpha(false);
         }
         public void EndView(bool result)
         {
             if (result)
             {
                 _gameView.GameWin.SetActive(true);
-                _gameView.Help.SetActive(true);
             }
             else
             {
                 _gameView.GameOver.SetActive(true);
-                _gameView.Help.SetActive(true);
             }
+            _gameView.Help.SetActive(true);
+            _gameView.SetBgImageAlpha(true);
         }
 
         public void SetPlayerPos(Vector3 p)
