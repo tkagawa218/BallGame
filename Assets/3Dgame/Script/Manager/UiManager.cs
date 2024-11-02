@@ -2,6 +2,8 @@ using UnityEngine;
 using UniRx;
 using Controller;
 using static UnityEditor.Experimental.GraphView.GraphView;
+using System;
+using UnityEngine.Playables;
 
 namespace Manager
 {
@@ -17,7 +19,9 @@ namespace Manager
 
         [SerializeField]
         private EnemyInfoController _enemyInfoController;
-        
+
+        [SerializeField]
+        private PanelController _panelController;
 
         private void Awake()
         {
@@ -42,11 +46,36 @@ namespace Manager
             })
             .AddTo(this);
 
+            _buttonController.ReturnButton.OnClickAsObservable()
+            .Subscribe(c =>
+            {
+                _panelController.SetHelpActive(true);
+                _buttonController.SetStartActive(true);
+                _buttonController.SetReturnActive(false);
+                UniRxManager.Instance.SendInitEvent();
+            })
+            .AddTo(this);
 
-            UniRxManager.Instance.OnVarEnemyEvent
+            UniRxManager.Instance.OnChangeEnemyNumEvent
             .Subscribe(num =>
             {
                 _enemyInfoController.SetEnemyNum(num);
+            })
+            .AddTo(this);
+
+            UniRxManager.Instance.OnStartEvent
+            .Subscribe(_ =>
+            {
+                _panelController.SetHelpActive(false);
+                _buttonController.SetStartActive(false);
+                _buttonController.SetReturnActive(false);
+            })
+            .AddTo(this);
+
+            UniRxManager.Instance.OnEndEvent
+            .Subscribe(result =>
+            {
+                _buttonController.SetReturnActive(true);
             })
             .AddTo(this);
         }

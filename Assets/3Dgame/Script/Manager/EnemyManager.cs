@@ -32,13 +32,6 @@ namespace Manager
 
         private void Awake()
         {
-            UniRxManager.Instance.OnStartEvent
-            .Subscribe(_ =>
-            {
-                _enemyController.DoAsync().Forget();
-            })
-            .AddTo(this);
-
             Observable.EveryUpdate()
            .Subscribe(_ => {
                // NavMesh‚ª€”õ‚Å‚«‚Ä‚¢‚é‚È‚ç
@@ -49,6 +42,11 @@ namespace Manager
                }
            })
             .AddTo(this);
+        }
+
+        private void Start()
+        {
+            _enemyController.DoAsync().Forget();
         }
     }
 }

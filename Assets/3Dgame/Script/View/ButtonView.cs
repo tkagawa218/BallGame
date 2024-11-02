@@ -3,10 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ButtonView : MonoBehaviour
+namespace View
 {
-    [SerializeField]
-    private Button _startButton;
 
-    public Button StartButton => _startButton;
+    public class ButtonView : MonoBehaviour
+    {
+        [SerializeField]
+        private Button _startButton;
+
+        [SerializeField]
+        private Button _returnButton;
+
+        public Button StartButton => _startButton;
+        public Button ReturnButton => _returnButton;
+    }
 }

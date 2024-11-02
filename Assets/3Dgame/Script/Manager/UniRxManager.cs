@@ -27,6 +27,25 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
         timerSubject.OnNext(time);
     }
 
+    // 初期状態イベントを発行する核となるインスタンス
+    private Subject<Unit> initSubject = new Subject<Unit>();
+
+    /// <summary>
+    /// 初期状態イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<Unit> OnInitEvent
+    {
+        get { return initSubject; }
+    }
+
+    /// <summary>
+    /// 初期状態イベント発行
+    /// </summary>
+    public void SendInitEvent()
+    {
+        initSubject.OnNext(Unit.Default);
+    }
+
     //ゲームスタートイベントを発行する核となるインスタンス
     private Subject<Unit> startSubject = new Subject<Unit>();
 
@@ -82,10 +101,10 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
     /// <summary>
     /// 敵数変化イベント発行
     /// </summary>
-    /// <param name="num">敵キャラの数</param>
-    public void SendVarEnemyEvent(int num)
+    /// <param name="enemyNum">敵キャラの数</param>
+    public void SendVarEnemyEvent(int enemyNum)
     {
-        varEnemySubject.OnNext(num);
+        varEnemySubject.OnNext(enemyNum);
     }
 
     //パーティクル配置イベントを発行する核となるインスタンス
@@ -104,6 +123,24 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
     public void SendSetParticleEvent()
     {
         setParticleSubject.OnNext(Unit.Default);
+    }
+
+    //パーティクル配置取り消しイベントを発行する核となるインスタンス
+    private Subject<Unit> unSetParticleSubject = new Subject<Unit>();
+
+    /// <summary>
+    /// パーティクル配置取り消しイベントの購読側だけを公開
+    /// </summary>
+    public IObservable<Unit> OnUnSetParticleEvent
+    {
+        get { return unSetParticleSubject; }
+    }
+
+
+    //パーティクル配置取り消しイベント発行
+    public void UnSendSetParticleEvent()
+    {
+        unSetParticleSubject.OnNext(Unit.Default);
     }
 
     //敵パーティクル削除イベントを発行する核となるインスタンス
@@ -191,5 +228,25 @@ public class UniRxManager : SingletonMonoBehaviour<UniRxManager>
     public void SendPlayerDirectionEvent(PlayerDirection p)
     {
         _playerDirectionSubject.OnNext(p);
+    }
+
+    //敵数変更イベントを発行する核となるインスタンス
+    private Subject<int> changeEnemyNumSubject = new Subject<int>();
+
+    /// <summary>
+    /// 敵数変更イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<int> OnChangeEnemyNumEvent
+    {
+        get { return changeEnemyNumSubject; }
+    }
+
+    /// <summary>
+    /// 敵数変更イベント発行
+    /// </summary>
+    /// <param name="num">敵キャラの数</param>
+    public void SendChangeEnemyNumEvent(int num)
+    {
+        changeEnemyNumSubject.OnNext(num);
     }
 }

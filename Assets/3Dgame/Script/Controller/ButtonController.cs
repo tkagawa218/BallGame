@@ -1,6 +1,6 @@
 using UnityEngine;
-using UniRx;
 using UnityEngine.UI;
+using View;
 
 public class ButtonController : MonoBehaviour
 {
@@ -8,18 +8,15 @@ public class ButtonController : MonoBehaviour
     private ButtonView _buttonView;
 
     public Button StartButton => _buttonView.StartButton;
+    public Button ReturnButton => _buttonView.ReturnButton;
 
-    private void Awake()
-    {
-        _buttonView.StartButton.onClick.AsObservable()
-        .Subscribe(_ =>
-        {
-            UniRxManager.Instance.SendStartEvent();
-        });
-    }
 
     public void SetStartActive(bool b)
     {
         _buttonView.StartButton.gameObject.SetActive(b);
+    }
+    public void SetReturnActive(bool b)
+    {
+        _buttonView.ReturnButton.gameObject.SetActive(b);
     }
 }

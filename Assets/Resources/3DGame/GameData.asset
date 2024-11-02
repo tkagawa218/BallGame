@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c527c9ab06edbc429279a9a68bf8b90, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  enemyInitNum: 5
+  enemyInitNum: 10
   enemyPos:
   - {x: 150, y: 5, z: 150}
   - {x: 150, y: 5, z: 250}
@@ -29,6 +29,11 @@ MonoBehaviour:
   - {x: 200, y: 5, z: 100}
   - {x: 300, y: 5, z: 150}
   - {x: 100, y: 5, z: 50}
+  - {x: 50, y: 5, z: 50}
+  - {x: 50, y: 5, z: 100}
+  - {x: 50, y: 5, z: 150}
+  - {x: 50, y: 5, z: 250}
+  - {x: 50, y: 5, z: 350}
   areaPos:
   - {x: 100, y: 0, z: 100}
   - {x: 150, y: 0, z: 100}
@@ -73,11 +78,7 @@ MonoBehaviour:
   enemyNumMax: 50
   enemyNumIncreaseRate: 5
   gameTime: 180
-  playerAreaNum: 15
-  enemyAreaNum: 15
-  particleInterval: 20
+  playerAreaNum: 28
+  enemyAreaNum: 12
+  particleInterval: 30
   enemyExplaceInterval: 30
-  minX: 0
-  maxX: 390
-  minZ: 0
-  maxZ: 390

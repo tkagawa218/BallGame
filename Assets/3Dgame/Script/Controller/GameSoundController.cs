@@ -80,5 +80,12 @@ public class GameSoundController : MonoBehaviour
         {
             GameSoundManager.Instance.setSoundSe(audioSource, _playerParticleSE);
         });
+
+        //初期化イベントを購読
+        GameSoundManager.Instance.OnSoundInitBgmChanged
+        .Subscribe(_ =>
+        {
+            GameSoundManager.Instance.PlaySoundBgm(_initBGM);
+        });
     }
 }

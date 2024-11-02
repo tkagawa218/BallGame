@@ -5,47 +5,43 @@ using UniRx.Async;
 using UniRx.Async.Triggers;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+namespace Controller
 {
-    [SerializeField]
-    private Rigidbody _rigidbody;
 
-    private AsyncCollisionTrigger _asyncCollisionTrigger;
-
-    private PlayerDirection _currentPlayerDirection;
-
-    private void Awake()
+    public class PlayerController : MonoBehaviour
     {
-        //AsyncTrigger（extends MonoBehaviour）を取得する
-        _asyncCollisionTrigger = this.GetAsyncCollisionTrigger();
-    }
+        [SerializeField]
+        private Rigidbody _rigidbody;
 
-    private bool GetGameOn()
-    {
-        return GameDataModel.GetGameOn();
-    }
+        private AsyncCollisionTrigger _asyncCollisionTrigger;
+        private AsyncTriggerTrigger _asyncTriggerTrigger;
 
-    public async UniTask DoAsync()
-    {
-        // OnCollisionEnterが発生するまで待機する
-        // 味方球が、クリーム色のパーティクルに触れると、敵がへります。
-        var target = await _asyncCollisionTrigger.OnCollisionEnterAsync();
+        private PlayerDirection _currentPlayerDirection;
 
-        if (target.gameObject.name == "Terrain")
+        private void Awake()
         {
-            //味方キャラが地面に落ちたら、startボタンを表示
-            //if (GetGameOn()) UniRxManager.Instance.SendStartButtonEvent(true);
+            _asyncTriggerTrigger = this.GetAsyncTriggerTrigger();
         }
-        else
+
+        private bool GetGameOn()
         {
+            return GameDataModel.GetGameOn();
+        }
+
+        public async UniTask DoAsync()
+        {
+            _asyncCollisionTrigger = this.GetAsyncCollisionTrigger();
+
+            var target = await _asyncCollisionTrigger.OnCollisionEnterAsync();
+
             if (GetGameOn())
             {
                 var enemyParticleS = GameDataModel.GetEnemyParticleS();
                 var flag = false;
-                int n = GameDataModel.GetEnemyS().Count;
+                var n = GameDataModel.GetEnemyS().Count;
                 for (int i = 0; i < n; i++)
                 {
-                    if (target.gameObject == GameDataModel.GetEnemyS()[i])
+                    if (target.gameObject == GameDataModel.GetEnemyS()[i].gameObject)
                     {
                         //味方キャラが敵キャラに接触
                         flag = true;
@@ -57,74 +53,82 @@ public class PlayerController : MonoBehaviour
                 {
                     //味方キャラが敵キャに接触
                     GameDataModel.SetGameOff();
+                    UniRxManager.Instance.SendEndEvent(false);
                 }
-                else
-                {
-                    var particleS = GameDataModel.GetPlayerParticleS();
-
-                    var item = particleS
-                               .FirstOrDefault(p => p == target.gameObject);
-
-                    if (item != null)
-                    {
-                        UniRxManager.Instance.SendDelEnemyParticleEvent(item);
-                        UniRxManager.Instance.SendVarEnemyEvent(GameDataModel.GetEnemyS().Count - 1);
-
-                        GameSoundManager.Instance.sendPlayerparticleSeEvent();
-                    }
-                }
-
             }
-
+            await DoAsync();
         }
 
-        DoAsync().Forget();
-    }
-
-    public void Move(float force, PlayerDirection playerDirection)
-    {
-        if (GetGameOn())
+        public async UniTask DoParticleAsync()
         {
-            if (playerDirection == PlayerDirection.NONE)
+            // 味方球が、クリーム色のパーティクルに触れると、敵がへります。
+            var target = await _asyncTriggerTrigger.OnTriggerEnterAsync();
+
+            var particleS = GameDataModel.GetPlayerParticleS();
+
+            var item = particleS
+                       .FirstOrDefault(p => p == target.gameObject);
+
+            var gamedata = GameDataModel.GetGameData();
+
+            if (item != null)
             {
-                _rigidbody.velocity = Vector3.zero;
-                return;
+                UniRxManager.Instance.SendDelEnemyParticleEvent(item);
+                UniRxManager.Instance.SendVarEnemyEvent(GameDataModel.GetEnemyS().Count - gamedata.enemyNumIncreaseRate);
+                GameSoundManager.Instance.sendPlayerparticleSeEvent();
             }
 
-            Vector3 pos = Vector3.zero;
-
-            if(_currentPlayerDirection != playerDirection)
-            {
-                _rigidbody.velocity = Vector3.zero;
-            }
-
-            switch (playerDirection)
-            {
-                case PlayerDirection.UPARROW:
-                    pos.z = force;
-                    break;
-
-                case PlayerDirection.DOWNARROW:
-                    pos.z = -force;
-                    break;
-
-                case PlayerDirection.LEFTARROW:
-                    pos.x = -force;
-                    break;
-
-                case PlayerDirection.RIGHTARROW:
-                    pos.x = force;
-                    break;
-            }
-
-            
-            _rigidbody.AddForce(pos, ForceMode.Impulse);
-            _currentPlayerDirection = playerDirection;
+            await DoParticleAsync();
         }
-    }
 
-    public void InitPlayerPos()
-    {
-        transform.position = GameDataModel.GetInitPlayerPos();
+        public void Move(float force, PlayerDirection playerDirection)
+        {
+            if (GetGameOn())
+            {
+                if (playerDirection == PlayerDirection.NONE)
+                {
+                    _rigidbody.velocity = Vector3.zero;
+                    return;
+                }
+
+                Vector3 pos = Vector3.zero;
+
+                if (_currentPlayerDirection != playerDirection)
+                {
+                    _rigidbody.velocity = Vector3.zero;
+                }
+
+                switch (playerDirection)
+                {
+                    case PlayerDirection.UPARROW:
+                        pos.z = force;
+                        break;
+
+                    case PlayerDirection.DOWNARROW:
+                        pos.z = -force;
+                        break;
+
+                    case PlayerDirection.LEFTARROW:
+                        pos.x = -force;
+                        break;
+
+                    case PlayerDirection.RIGHTARROW:
+                        pos.x = force;
+                        break;
+                }
+
+
+                _rigidbody.AddForce(pos, ForceMode.Impulse);
+                _currentPlayerDirection = playerDirection;
+            }
+        }
+
+        public void InitPlayerPos()
+        {
+            _rigidbody.isKinematic = true;
+            transform.position = GameDataModel.GetInitPlayerPos();
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.isKinematic = false;
+        }
     }
 }

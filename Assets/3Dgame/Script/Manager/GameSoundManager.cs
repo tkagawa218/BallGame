@@ -9,6 +9,27 @@ public class GameSoundManager : SingletonMonoBehaviour<GameSoundManager>
 {
     private GameObject _soundBgm = null;
 
+    //初期BGMサウンド再生イベントを発行する核となるインスタンス
+    private Subject<Unit> soundInitBgmSubject = new Subject<Unit>();
+
+    /// <summary>
+    /// 初期BGMサウンド再生イベントの購読側だけを公開
+    /// </summary>
+    public IObservable<Unit> OnSoundInitBgmChanged
+    {
+        get { return soundInitBgmSubject; }
+    }
+
+    /// <summary>
+    /// 初期BGMサウンド再生イベント発行
+    /// </summary>
+    public void sendSoundInitBgmEvent()
+    {
+        soundInitBgmSubject.OnNext(Unit.Default);
+    }
+
+
+
     //play中BGMサウンド再生イベントを発行する核となるインスタンス
     private Subject<Unit> soundPlayBgmSubject = new Subject<Unit>();
 

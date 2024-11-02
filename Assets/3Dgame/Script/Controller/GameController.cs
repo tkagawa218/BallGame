@@ -2,7 +2,9 @@ using Common;
 using Model;
 using System.Collections.Generic;
 using System.Linq;
+using UniRx.Async;
 using UnityEngine;
+using View;
 
 namespace Controller
 {
@@ -15,11 +17,6 @@ namespace Controller
         [SerializeField]
         private GameData _gameData;
 
-        //“GƒLƒƒƒ‰”‚ğ‘‚â‚·ƒgƒŠƒK[‚Æ‚È‚éƒp[ƒeƒBƒNƒ‹List(“GƒLƒƒƒ‰‚ªG‚ê‚é‚Ì‚ªƒgƒŠƒK[‚Æ‚È‚é)
-        private List<GameObject> _enemyParticleS = new List<GameObject>();
-
-        //“GƒLƒƒƒ‰”‚ğŒ¸‚ç‚·ƒgƒŠƒK[‚Æ‚È‚éƒp[ƒeƒBƒNƒ‹List(–¡•ûƒLƒƒƒ‰‚ªG‚ê‚é‚Ì‚ªƒgƒŠƒK[‚Æ‚È‚é)
-        private List<GameObject> _playerParticleS = new List<GameObject>();
         public void Init()
         {
             GameDataModel.Init(_gameData);
@@ -51,59 +48,57 @@ namespace Controller
 
         }
 
-        public void AdjustmentEnemyS(GameObject p, GameObject target, int num)
+        public void AdjustmentEnemyS(GameObject p, GameObject target, int enemyNum)
         {
-            int diff = num - GameDataModel.GetEnemyS().Count;
+            var num = GameDataModel.GetEnemyS().Count;
 
-            if (diff == 0)
+            if (enemyNum == num)
             {
                 return;
             }
 
-            if(diff > 0)
+            if (enemyNum > num)
             {
-                while (diff > 0)
-                {
-                    AddEnemyS(p, target);
-                    diff--;
-                }
+                AddEnemyS(p, target, enemyNum);
 
                 return;
             }
 
-            while (diff < 0)
-            {
-                DelEnemyS();
-                diff++;
-            }
+            DelEnemyS();
         }
 
         /// <summary>
-        /// “GƒLƒƒƒ‰‚Ì’Ç‰Á
+        /// æ•µã‚­ãƒ£ãƒ©ã®è¿½åŠ 
         /// </summary>
-        /// <param name="p">“GƒLƒƒƒ‰‚ğŠi”[‚·‚éeƒIƒuƒWƒFƒNƒg</param>
-        /// <param name="target">“G‚©‚ç‚ª’Ç‚¢‚©‚¯‚éƒIƒuƒWƒFƒNƒg(–¡•ûƒLƒƒƒ‰)</param>
-        public void AddEnemyS(GameObject p, GameObject target)
+        /// <param name="p">æ•µã‚­ãƒ£ãƒ©ã‚’æ ¼ç´ã™ã‚‹è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
+        /// <param name="target">æ•µã‹ã‚‰ãŒè¿½ã„ã‹ã‘ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(å‘³æ–¹ã‚­ãƒ£ãƒ©)</param>
+        /// <param name="enemyNum">æ•µã®æ•°</param>
+        public void AddEnemyS(GameObject p, GameObject target, int enemyNum)
         {
             var gamedata = GameDataModel.GetGameData();
 
-            var enemyNum = GameDataModel.GetEnemyS().Count;
+            var increaceNum = enemyNum - GameDataModel.GetEnemyS().Count;
 
-            int num = 0;
-            if (enemyNum + gamedata.enemyInitNum > gamedata.enemyNumMax)
+            if(increaceNum < gamedata.enemyNumIncreaseRate)
+            {
+                increaceNum = gamedata.enemyNumIncreaseRate;
+            }
+
+            var num = 0;
+            if (enemyNum + increaceNum > gamedata.enemyNumMax)
             {
                 num = gamedata.enemyNumMax - GameDataModel.GetEnemyS().Count;
             }
             else
             {
-                num = gamedata.enemyInitNum;
+                num = increaceNum;
             }
 
             var ememyPosS = CommonTool.Shuffle<Vector3>(gamedata.enemyPos);
 
-            for (int i = 0; i < num; i++)
+            for (var i = 0; i < num; i++)
             {
-                // CubeƒvƒŒƒnƒu‚ğŒ³‚ÉAƒCƒ“ƒXƒ^ƒ“ƒX‚ğ¶¬A
+                // Cubeãƒ—ãƒ¬ãƒãƒ–ã‚’å…ƒã«ã€ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ç”Ÿæˆã€
                 var obj = Instantiate(_gameView.EnemyPrefab, ememyPosS[i], Quaternion.identity);
                obj.TargetObject = target.transform;
 
@@ -112,12 +107,11 @@ namespace Controller
                 GameDataModel.AddEnemyS(obj);
             }
 
-            UniRxManager.Instance.SendVarEnemyEvent(GameDataModel.GetEnemyS().Count);
-            if (num > 0) GameSoundManager.Instance.sendEnemyparticleSeEvent();
+            UniRxManager.Instance.SendChangeEnemyNumEvent(GameDataModel.GetEnemyS().Count);
         }
 
         /// <summary>
-        /// “GƒLƒƒƒ‰Œ¸­
+        /// æ•µã‚­ãƒ£ãƒ©æ¸›å°‘
         /// </summary>
         public void DelEnemyS()
         {
@@ -135,43 +129,47 @@ namespace Controller
                 num = enemyNum - gamedata.enemyInitNum;
             }
 
-            System.Random r = new System.Random();//“ª‚Ì•û‚ÅéŒ¾
+            System.Random r = new System.Random();//é ­ã®æ–¹ã§å®£è¨€
 
 
             var enemyS = GameDataModel.GetEnemyS().OrderBy(a => r.Next(enemyNum)).ToList();
 
             GameDataModel.SetEnemyS(enemyS);
 
-            int num_enayS = enemyNum;
+            int num_enamyS = enemyNum;
 
-            for (int i = 0; i < num_enayS; i++)
+            for (int i = 0; i < num_enamyS; i++)
             {
                 if (i < num) continue;
                 if (i >= enemyS.Count) break;
 
-                Destroy(enemyS[i]);
+                Destroy(enemyS[i].gameObject);
                 GameDataModel.RemoveEnemyS(enemyS[i]);
             }
-            UniRxManager.Instance.SendVarEnemyEvent(GameDataModel.GetEnemyS().Count);
+
+            UniRxManager.Instance.SendChangeEnemyNumEvent(GameDataModel.GetEnemyS().Count);
         }
 
         /// <summary>
-        /// “GƒLƒƒƒ‰‘S‚ÄƒNƒŠƒA
+        /// æ•µã‚­ãƒ£ãƒ©å…¨ã¦ã‚¯ãƒªã‚¢
         /// </summary>
         public void AllClearEnemyS()
         {
             var enemyS = GameDataModel.GetEnemyS();
             foreach(var enemy in enemyS)
             {
-                Destroy(enemy);
+                if (enemy != null)
+                {
+                    Destroy(enemy.gameObject);
+                }
             }
             GameDataModel.ClearEnemyS();
         }
 
         /// <summary>
-        /// “GƒLƒƒƒ‰‘S‚Ä‚ÌˆÊ’u‚ğ’u‚«Š·‚¦‚é
+        /// æ•µã‚­ãƒ£ãƒ©å…¨ã¦ã®ä½ç½®ã‚’ç½®ãæ›ãˆã‚‹
         /// </summary>
-        public void allExplaceEnemyS()
+        public void AllExplaceEnemyS()
         {
             var gamedata = GameDataModel.GetGameData();
 
@@ -186,11 +184,12 @@ namespace Controller
         }
 
         /// <summary>
-        /// “GƒLƒƒƒ‰‚ª‚Ô‚Â‚©‚é‚Æ“GƒLƒƒƒ‰‚ª‘‚¦‚éƒp[ƒeƒBƒNƒ‹‘S‚Äíœ
+        /// æ•µã‚­ãƒ£ãƒ©ãŒã¶ã¤ã‹ã‚‹ã¨æ•µã‚­ãƒ£ãƒ©ãŒå¢—ãˆã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«å…¨ã¦å‰Šé™¤
         /// </summary>
         public void AllClearEnemyParticleS()
         {
-            var allEnemyParticleS = GameDataModel.GetEnemyParticleS();
+            var allEnemyParticleS = GameDataModel.GetEnemyParticleS().ToArray();
+
             foreach (var enemyParticle in allEnemyParticleS)
             {
                 DellAnyEnemyParticleS(enemyParticle);
@@ -198,18 +197,17 @@ namespace Controller
         }
 
         /// <summary>
-        /// “GƒLƒƒƒ‰‚ª‚Ô‚Â‚©‚é‚Æ“GƒLƒƒƒ‰‚ª‘‚¦‚éƒp[ƒeƒBƒNƒ‹íœ
+        /// æ•µã‚­ãƒ£ãƒ©ãŒã¶ã¤ã‹ã‚‹ã¨æ•µã‚­ãƒ£ãƒ©ãŒå¢—ãˆã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«å‰Šé™¤
         /// </summary>
-        /// <param name="item">íœ‚·‚éƒp[ƒeƒBƒNƒ‹</param>
+        /// <param name="item">å‰Šé™¤ã™ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«</param>
         public void DellAnyEnemyParticleS(GameObject item)
         {
-            Destroy(item);
-
             GameDataModel.RemoveEnemyParticle(item);
+            Destroy(item);
         }
 
         /// <summary>
-        /// –¡•ûƒLƒƒƒ‰‚ª‚Ô‚Â‚©‚é‚Æ“GƒLƒƒƒ‰‚ªŒ¸‚éƒp[ƒeƒBƒNƒ‹‘S‚Äíœ
+        /// å‘³æ–¹ã‚­ãƒ£ãƒ©ãŒã¶ã¤ã‹ã‚‹ã¨æ•µã‚­ãƒ£ãƒ©ãŒæ¸›ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«å…¨ã¦å‰Šé™¤
         /// </summary>
         public void AllClearPlayerParticleS()
         {
@@ -221,9 +219,9 @@ namespace Controller
         }
 
         /// <summary>
-        /// –¡•ûƒLƒƒƒ‰‚ª‚Ô‚Â‚©‚é‚Æ“GƒLƒƒƒ‰‚ªŒ¸‚éƒp[ƒeƒBƒNƒ‹íœ
+        /// å‘³æ–¹ã‚­ãƒ£ãƒ©ãŒã¶ã¤ã‹ã‚‹ã¨æ•µã‚­ãƒ£ãƒ©ãŒæ¸›ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«å‰Šé™¤
         /// </summary>
-        /// <param name="item">íœ‚·‚éƒp[ƒeƒBƒNƒ‹</param>
+        /// <param name="item">å‰Šé™¤ã™ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«</param>
         public void DellAnyPlayerParticleS(GameObject item)
         {
             Destroy(item);
@@ -232,9 +230,9 @@ namespace Controller
         }
 
         /// <summary>
-        /// c‚èƒ^ƒCƒ€‚Ìİ’è
+        /// æ®‹ã‚Šã‚¿ã‚¤ãƒ ã®è¨­å®š
         /// </summary>
-        /// <param name="time">c‚èƒ^ƒCƒ€(•b)</param>
+        /// <param name="time">æ®‹ã‚Šã‚¿ã‚¤ãƒ (ç§’)</param>
         public void setRestTime(int time)
         {
             GameDataModel.RestTime = time;
@@ -243,24 +241,16 @@ namespace Controller
 
         public void InitView()
         {
-            _gameView.Start.SetActive(false);
-            _gameView.Help.SetActive(false);
-            _gameView.GameOver.SetActive(false);
-            _gameView.GameWin.SetActive(false);
             _gameView.SetBgImageAlpha(false);
         }
-        public void EndView(bool result)
+
+        public void EndView()
         {
-            if (result)
-            {
-                _gameView.GameWin.SetActive(true);
-            }
-            else
-            {
-                _gameView.GameOver.SetActive(true);
-            }
-            _gameView.Help.SetActive(true);
-            _gameView.SetBgImageAlpha(true);
+            AllClearEnemyS();
+            AllClearEnemyParticleS();
+            AllClearPlayerParticleS();
+
+            //_gameView.SetBgImageAlpha(true);
         }
 
         public void SetPlayerPos(Vector3 p)
