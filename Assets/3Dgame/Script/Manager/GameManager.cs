@@ -42,7 +42,7 @@ namespace Manager
             {
                 _gameController.GameOn();
                 _gameController.AllClearEnemyS();
-                _gameController.setRestTime(GameData.Instance.gameTime);
+                _gameController.setRestTime(gamedata.gameTime);
                 _gameController.InitView();
                 _gameController.AdjustmentEnemyS(_enemyParent.gameObject, _player.gameObject, gamedata.enemyInitNum);
                 UniRxManager.Instance.SendSetParticleEvent();

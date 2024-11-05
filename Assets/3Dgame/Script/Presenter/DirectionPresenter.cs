@@ -1,4 +1,5 @@
 using Controller;
+using Manager;
 using UniRx;
 using UnityEngine;
 using View;

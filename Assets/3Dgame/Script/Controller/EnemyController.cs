@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Manager;
+using Model;
 using UniRx.Async;
 using UniRx.Async.Triggers;
 using UnityEngine;

@@ -4,6 +4,8 @@ using Controller;
 using static UnityEditor.Experimental.GraphView.GraphView;
 using System;
 using UnityEngine.Playables;
+using UnityEngine.UI;
+using UniRx.Triggers;
 
 namespace Manager
 {
@@ -52,7 +54,24 @@ namespace Manager
                 _panelController.SetHelpActive(true);
                 _buttonController.SetStartActive(true);
                 _buttonController.SetReturnActive(false);
+                _buttonController.SetMouseActive(false);
                 UniRxManager.Instance.SendInitEvent();
+            })
+            .AddTo(this);
+
+            _buttonController.MouseButton.UpdateAsObservable()
+            .Where(_ => Input.GetMouseButtonDown(0))
+            .Subscribe(_ =>
+            {
+                UniRxManager.Instance.SendChangeCameraDirMouseEvent(true);
+            })
+            .AddTo(this);
+
+            _buttonController.MouseButton.UpdateAsObservable()
+            .Where(_ => Input.GetMouseButtonUp(0))
+            .Subscribe(c =>
+            {
+                UniRxManager.Instance.SendChangeCameraDirMouseEvent(false);
             })
             .AddTo(this);
 
@@ -69,6 +88,7 @@ namespace Manager
                 _panelController.SetHelpActive(false);
                 _buttonController.SetStartActive(false);
                 _buttonController.SetReturnActive(false);
+                _buttonController.SetMouseActive(true);
             })
             .AddTo(this);
 
@@ -76,6 +96,7 @@ namespace Manager
             .Subscribe(result =>
             {
                 _buttonController.SetReturnActive(true);
+                _buttonController.SetMouseActive(false);
             })
             .AddTo(this);
         }

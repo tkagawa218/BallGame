@@ -9,6 +9,7 @@ public class ButtonController : MonoBehaviour
 
     public Button StartButton => _buttonView.StartButton;
     public Button ReturnButton => _buttonView.ReturnButton;
+    public Button MouseButton => _buttonView.MouseButton;
 
 
     public void SetStartActive(bool b)
@@ -18,5 +19,9 @@ public class ButtonController : MonoBehaviour
     public void SetReturnActive(bool b)
     {
         _buttonView.ReturnButton.gameObject.SetActive(b);
+    }
+    public void SetMouseActive(bool b)
+    {
+        _buttonView.MouseButton.gameObject.SetActive(b);
     }
 }

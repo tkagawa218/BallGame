@@ -14,7 +14,11 @@ namespace View
         [SerializeField]
         private Button _returnButton;
 
+        [SerializeField]
+        private Button _mouseButton;
+
         public Button StartButton => _startButton;
         public Button ReturnButton => _returnButton;
+        public Button MouseButton => _mouseButton;
     }
 }
