@@ -2,6 +2,7 @@ using Common;
 using Manager;
 using Model;
 using System.Linq;
+using System.Threading;
 using UniRx.Async;
 using UniRx.Async.Triggers;
 using UnityEngine;
@@ -29,11 +30,13 @@ namespace Controller
             return GameDataModel.GetGameOn();
         }
 
-        public async UniTask DoAsync()
+        public async UniTask DoAsync(CancellationTokenSource c)
         {
+            var token = c.Token;
+
             _asyncCollisionTrigger = this.GetAsyncCollisionTrigger();
 
-            var target = await _asyncCollisionTrigger.OnCollisionEnterAsync();
+            var target = await _asyncCollisionTrigger.OnCollisionEnterAsync(token);
 
             if (GetGameOn())
             {
@@ -57,13 +60,20 @@ namespace Controller
                     UniRxManager.Instance.SendEndEvent(false);
                 }
             }
-            await DoAsync();
+
+            c.Cancel();
+
+            c = new CancellationTokenSource();
+
+            await DoAsync(c);
         }
 
-        public async UniTask DoParticleAsync()
+        public async UniTask DoParticleAsync(CancellationTokenSource c)
         {
+            var token = c.Token;
+
             // 味方球が、クリーム色のパーティクルに触れると、敵がへります。
-            var target = await _asyncTriggerTrigger.OnTriggerEnterAsync();
+            var target = await _asyncTriggerTrigger.OnTriggerEnterAsync(token);
 
             var particleS = GameDataModel.GetPlayerParticleS();
 
@@ -79,7 +89,11 @@ namespace Controller
                 GameSoundManager.Instance.sendPlayerparticleSeEvent();
             }
 
-            await DoParticleAsync();
+            c.Cancel();
+
+            c = new CancellationTokenSource();
+
+            await DoParticleAsync(c);
         }
 
         public void Move(float force, PlayerDirection playerDirection)

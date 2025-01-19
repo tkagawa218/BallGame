@@ -1,10 +1,6 @@
 using UnityEngine;
 using UniRx;
 using Controller;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using System;
-using UnityEngine.Playables;
-using UnityEngine.UI;
 using UniRx.Triggers;
 
 namespace Manager

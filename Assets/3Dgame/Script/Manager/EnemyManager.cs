@@ -4,6 +4,7 @@ using UnityEngine.AI;
 using UniRx;
 using Controller;
 using Common;
+using System.Threading;
 
 namespace Manager
 {
@@ -17,6 +18,8 @@ namespace Manager
         private EnemyController _enemyController;
 
         private Transform _targetObject;// –Ú•WˆÊ’u
+        private CancellationTokenSource _cancellationTokenSource = null;
+        private CancellationToken _cancellationToken;
 
         public Transform TargetObject
         {
@@ -30,8 +33,16 @@ namespace Manager
             }
         }
 
+        private void OnDestroy()
+        {
+            _cancellationTokenSource.Cancel();
+        }
+
         private void Awake()
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationToken = _cancellationTokenSource.Token;
+
             Observable.EveryUpdate()
            .Subscribe(_ => {
                // NavMesh‚ª€”õ‚Å‚«‚Ä‚¢‚é‚È‚ç
@@ -46,7 +57,7 @@ namespace Manager
 
         private void Start()
         {
-            _enemyController.DoAsync().Forget();
+            _enemyController.DoAsync(_cancellationTokenSource).Forget();
         }
     }
 }

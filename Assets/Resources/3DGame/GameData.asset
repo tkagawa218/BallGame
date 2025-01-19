@@ -77,7 +77,7 @@ MonoBehaviour:
   - {x: 50, y: 0, z: 280}
   enemyNumMax: 50
   enemyNumIncreaseRate: 5
-  gameTime: 10
+  gameTime: 170
   playerAreaNum: 28
   enemyAreaNum: 12
   particleInterval: 30

@@ -2,7 +2,7 @@
 using UniRx.Async;
 using UniRx;
 using Controller;
-using static UnityEditor.Experimental.GraphView.GraphView;
+using System.Threading;
 
 namespace Manager
 {
@@ -16,9 +16,14 @@ namespace Manager
         private float _force = 1.0f; // 移動速度 m/s
                                      // Update is called once per frame
 
+        private CancellationTokenSource _cancellationTokenSource = null;
+        private CancellationTokenSource _cancellationTokenSourceParticle = null;
 
         private void Awake()
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationTokenSourceParticle = new CancellationTokenSource();
+
             UniRxManager.Instance.OnPlayerDirectionEvent
             .Subscribe(playerDirection =>
             {
@@ -33,10 +38,16 @@ namespace Manager
             .AddTo(this);
         }
 
+        private void OnDestroy()
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSourceParticle.Cancel();
+        }
+
         private void Start()
         {
-            _playerController.DoAsync().Forget();
-            _playerController.DoParticleAsync().Forget();
+            _playerController.DoAsync(_cancellationTokenSource).Forget();
+            _playerController.DoParticleAsync(_cancellationTokenSourceParticle).Forget();
         }
     }
 }

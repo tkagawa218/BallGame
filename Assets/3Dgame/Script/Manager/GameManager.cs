@@ -3,8 +3,6 @@ using UniRx;
 using Controller;
 using System;
 using Model;
-using UniRx.Async;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace Manager
 {
